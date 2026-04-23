@@ -1,6 +1,6 @@
 namespace TrainBooking.Infrastructure;
 
-public class Class1
+public class Class
 {
 
 }
