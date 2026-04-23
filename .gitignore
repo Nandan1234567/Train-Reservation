@@ -9,6 +9,10 @@ nupkg/
 .vscode/*
 !.vscode/settings.json
 
+#Environment files
+.env
+*.env
+
 # Rider
 .idea/
 
