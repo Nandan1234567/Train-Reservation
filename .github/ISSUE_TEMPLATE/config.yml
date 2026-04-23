@@ -1,0 +1,12 @@
+# When someone clicks "New issue", they will see the templates above.
+# This config controls what else appears on the template picker.
+
+blank_issues_enabled: true
+
+# Once GitHub Discussions is enabled on this repo, uncomment the block below
+# so that questions are redirected to Discussions instead of Issues.
+#
+# contact_links:
+#   - name: Question or discussion
+#     url: https://github.com/saijaku0/clean-architecture/discussions
+#     about: For questions, ideas, and general discussion — please use Discussions instead of Issues.

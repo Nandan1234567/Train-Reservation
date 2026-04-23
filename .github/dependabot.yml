@@ -1,0 +1,66 @@
+version: 2
+updates:
+  # ─── NuGet packages ──────────────────────────────────────────
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    assignees:
+      - "saijaku0"
+    labels:
+      - "dependencies"
+      - "dotnet"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      dotnet-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ─── GitHub Actions ──────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    assignees:
+      - "saijaku0"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # ─── Docker Compose (SQL Server, Redis) ──────────────────────
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    assignees:
+      - "saijaku0"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
