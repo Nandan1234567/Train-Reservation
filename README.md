@@ -37,14 +37,14 @@ Full ERD and column-level details live in [`docs/database-schema.md`](./docs/dat
 ### Architecture
 * **Clean Architecture:** Strict separation into layers. The Domain has no external dependencies.
 * **CQRS via MediatR:** Commands are isolated from queries. Repetitive infrastructure plumbing (UnitOfWork, uniform handling of domain exceptions) is extracted into base classes `CommandHandler<T>` and `QueryHandler<T>`, so concrete handlers contain only pure business logic. An alternative approach using Pipeline Behaviors is discussed in the backlog.
-* **Domain Events:** Events (such as `TripSeatReservedEvent`, `ReservationExpiredEvent`) are dispatched by overriding `SaveChangesAsync` in EF Core, with an adapter to `MediatR`.
+* **Domain Events:** Events (such as `TripSeatReservedDomainEvent`, `ReservationExpiredDomainEvent`) are dispatched by overriding `SaveChangesAsync` in EF Core, with an adapter to `MediatR`.
 * **Result pattern:** No exceptions for business logic. The domain uses `Result<T>`, which is mapped to HTTP codes at the API layer through extension methods.
 
 ### Infrastructure
 * **Database:** Microsoft SQL Server 2022, with migrations extracted into a separate console project.
 * **Caching:** Redis for frequent queries (for example, `GetTripSeatsQuery`). The cache is invalidated by domain events when seat state changes.
 * **Background jobs:** An `IHostedService` that automatically checks for expired reservations every minute.
-* **Authentication:** Auth0 (cloud-hosted JWT validation via JWKS). A thin local `User` table caches `email` and `full name` by Auth0 `sub`, populated lazily by middleware on the first authenticated request. See [🔑 Auth0 setup](#-auth0-setup).
+* **Authentication:** Auth0 (cloud-hosted JWT validation via JWKS). A thin local `User` table caches `email` and `full name`, keyed by an internal Guid `Id` with a unique `Auth0Sub` column. Populated lazily by middleware on the first authenticated request. See [🔑 Auth0 setup](#-auth0-setup).
 * **Logging:** Serilog (structured logging).
 
 ## 🔒 Concurrency strategy
@@ -130,7 +130,7 @@ The project is fully containerized. Infrastructure is brought up via Docker Comp
 * The JWT Bearer pipeline pulls the JWKS automatically from `https://{Domain}/.well-known/openid-configuration` — signature validation does not require manual key setup.
 * Scopes from the token are mapped to policies via `[Authorize(Policy = "reservations:write")]`.
 
-**Local user cache.** Auth0 is the source of truth for identity. We keep a thin `User` table keyed by Auth0 `sub` that caches `email` and `full name`, so reservation reads don't need to call the Auth0 Management API on every request. On the first authenticated request, an `EnsureUserCache` middleware upserts the user from JWT claims. A `LastSyncedAt` column allows periodic refresh if profile data drifts.
+**Local user cache.** Auth0 is the source of truth for identity. We keep a thin `User` table keyed by an internal Guid `Id` with a unique `Auth0Sub` column, caching `email` and `full name` so reservation reads don't need to call the Auth0 Management API on every request. On the first authenticated request, an `EnsureUserCache` middleware looks up the user by the `sub` claim from the JWT, inserts a new row with a fresh Guid if missing, and exposes the resulting internal `User.Id` to handlers. A `LastSyncedAt` column allows periodic refresh if profile data drifts. Decoupling the internal `Id` from `Auth0Sub` means changing the identity provider later does not require migrating every foreign key.
 
 ## 🧪 Testing
 
