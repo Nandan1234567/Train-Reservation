@@ -55,7 +55,7 @@ public class User : AggregateRoot
         Email = email;
         FullName = fullName;
         LastSyncedAt = DateTime.UtcNow;
-        
+
         AddDomainEvent(new UserProfileUpdatedDomainEvent(Id));
         return Result.Success();
     }
