@@ -1,10 +1,13 @@
+using TrainBooking.Infrastructure;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddInfrastructure(builder.Configuration);
 
 WebApplication app = builder.Build();
 
