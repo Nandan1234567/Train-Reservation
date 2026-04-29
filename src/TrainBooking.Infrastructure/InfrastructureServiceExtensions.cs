@@ -14,7 +14,8 @@ public static class InfrastructureServiceExtensions
         string connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString, b =>
+                b.MigrationsAssembly("TrainBooking.Migrations")));
         return services;
     }
 
